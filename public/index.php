@@ -47,6 +47,24 @@ $router = new \App\Router();
 $authController = new \App\Controllers\AuthController($db);
 $dashboardController = new \App\Controllers\DashboardController($db);
 
+// Existing dependency injection...
+$groceryController = new \App\Controllers\GroceryController($db);
+
+// Register New Routes
+$router->add('GET', '/grocery/new', [$groceryController, 'create'], true);
+$router->add('POST', '/grocery/new', [$groceryController, 'store'], true);
+
+// Existing dependency injection...
+$userController = new \App\Controllers\UserController($db);
+$calendarController = new \App\Controllers\CalendarController($db);
+
+// New Routes
+$router->add('GET', '/users/new', [$userController, 'create'], true);
+$router->add('POST', '/users/new', [$userController, 'store'], true);
+
+$router->add('GET', '/events/new', [$calendarController, 'create'], true);
+$router->add('POST', '/events/new', [$calendarController, 'store'], true);
+
 // 4. Route Wiring
 $router->add('GET', '/login', [$authController, 'showLogin'], false);
 $router->add('POST', '/login', [$authController, 'processLogin'], false);

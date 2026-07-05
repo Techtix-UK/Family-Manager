@@ -137,65 +137,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Household Manager Setup</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background: #f4f4f5; display: flex; justify-content: center; padding: 2rem; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; box-sizing: border-box; }
-        .error { color: #dc2626; background: #fee2e2; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; font-weight: 500; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #374151; }
-        input { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 0.75rem; background: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        :root { --primary: #2563eb; --bg: #f3f4f6; --text: #1f2937; --border: #e5e7eb; --card: #ffffff; }
+        body { background-color: var(--bg); font-family: system-ui, -apple-system, sans-serif; color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; }
+        .card { background: var(--card); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; max-width: 450px; overflow: hidden; }
+        .header { background: var(--primary); color: white; padding: 1.5rem; text-align: center; font-weight: 600; font-size: 1.25rem; margin: 0; }
+        .content { padding: 2rem; }
+        .step-indicator { font-size: 0.875rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; display: block; }
+        .error { background: #fee2e2; color: #b91c1c; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.875rem; border: 1px solid #f87171; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem; }
+        input { width: 100%; padding: 0.75rem; margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.15s; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        button { width: 100%; padding: 0.75rem; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background-color 0.15s; }
         button:hover { background: #1d4ed8; }
-        code { display: block; background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 4px; margin-top: 1rem; word-break: break-all; }
+        code { display: block; background: #111827; color: #10b981; padding: 1rem; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 0.875rem; margin-top: 1rem; text-align: center; }
+        .success-msg { color: #059669; font-weight: 600; font-size: 1.125rem; margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
-
 <div class="card">
-    <h2>Setup - Step <?= $step ?></h2>
-    <?php if ($error): ?><div class="error"><?= $error ?></div><?php endif; ?>
+    <h1 class="header">Household Manager</h1>
+    <div class="content">
+        <span class="step-indicator">Step <?= $step ?> of 3</span>
+        <?php if ($error): ?><div class="error"><?= $error ?></div><?php endif; ?>
 
-    <?php if ($step === 1): ?>
-        <p>Enter your MySQL database credentials. The database must exist.</p>
-        <form method="POST">
-            <label for="db_host">Database Host</label>
-            <input type="text" id="db_host" name="db_host" value="127.0.0.1" required>
-            
-            <label for="db_name">Database Name</label>
-            <input type="text" id="db_name" name="db_name" required>
-            
-            <label for="db_user">Database User</label>
-            <input type="text" id="db_user" name="db_user" required>
-            
-            <label for="db_pass">Database Password</label>
-            <input type="password" id="db_pass" name="db_pass">
-            
-            <button type="submit">Test Connection & Save</button>
-        </form>
-    <?php elseif ($step === 2): ?>
-        <p>Create your primary Administrator account. Tables will be deployed automatically.</p>
-        <form method="POST">
-            <label for="admin_name">Admin Name (e.g., Mom / Dad)</label>
-            <input type="text" id="admin_name" name="admin_name" required>
-            
-            <label for="admin_email">Admin Email</label>
-            <input type="email" id="admin_email" name="admin_email" required>
-            
-            <label for="admin_pin">Login PIN (Numeric for mobile ease)</label>
-            <input type="password" id="admin_pin" name="admin_pin" pattern="[0-9]*" inputmode="numeric" required>
-            
-            <button type="submit">Build Database & Create Admin</button>
-        </form>
-    <?php elseif ($step === 3): ?>
-        <h3 style="color: #16a34a; margin-top: 0;">Setup Complete!</h3>
-        <p>The database schema has been deployed successfully.</p>
-        <p><strong>CRITICAL SECURITY ACTION REQUIRED:</strong></p>
-        <p>Delete this file from your server immediately.</p>
-        <code>rm public/setup.php</code>
-        <a href="/login" style="display: block; text-align: center; margin-top: 1.5rem; color: #2563eb; text-decoration: none; font-weight: bold;">Proceed to Login &rarr;</a>
-    <?php endif; ?>
+        <?php if ($step === 1): ?>
+            <p style="margin-top: 0; color: #4b5563; font-size: 0.95rem; margin-bottom: 1.5rem;">Enter your MySQL database credentials.</p>
+            <form method="POST">
+                <label>Database Host</label><input type="text" name="db_host" value="127.0.0.1" required>
+                <label>Database Name</label><input type="text" name="db_name" required>
+                <label>Database User</label><input type="text" name="db_user" required>
+                <label>Database Password</label><input type="password" name="db_pass">
+                <button type="submit">Connect & Continue</button>
+            </form>
+        <?php elseif ($step === 2): ?>
+            <p style="margin-top: 0; color: #4b5563; font-size: 0.95rem; margin-bottom: 1.5rem;">Create the primary administrator account.</p>
+            <form method="POST">
+                <label>Administrator Name</label><input type="text" name="admin_name" required>
+                <label>Email Address</label><input type="email" name="admin_email" required>
+                <label>Login PIN (Numbers only)</label><input type="password" name="admin_pin" pattern="[0-9]*" inputmode="numeric" required>
+                <button type="submit">Install Database</button>
+            </form>
+        <?php elseif ($step === 3): ?>
+            <div style="text-align: center;">
+                <div class="success-msg">Installation Complete</div>
+                <p style="color: #4b5563; font-size: 0.95rem;">For security, you must delete the setup file manually before logging in.</p>
+                <code>rm public/setup.php</code>
+                <a href="/login" style="display: inline-block; margin-top: 1.5rem; color: var(--primary); font-weight: 600; text-decoration: none;">Proceed to Login &rarr;</a>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
-
 </body>
 </html>
